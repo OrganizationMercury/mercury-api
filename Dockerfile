@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:7.0 AS publish
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
