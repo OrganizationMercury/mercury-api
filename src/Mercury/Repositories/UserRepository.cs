@@ -15,19 +15,8 @@ public class UserRepository
     public async Task CreateUserAsync(User user)
     {
         await _client.Cypher
-            .Create("""
-                    (user:User { 
-                    id: id,
-                    firstname: firstname,
-                    lastname: lastname
-                    })
-                    """)
-            .WithParams(new
-            {
-                id = user.Id,
-                firstname = user.Firstname,
-                lastname = user.Lastname
-            })
+            .Create("(user:User $user)")
+            .WithParam("user", user)
             .ExecuteWithoutResultsAsync();
     }
 
