@@ -33,7 +33,7 @@ public class UsersController : ControllerBase
         };
         
         await _users.CreateUserAsync(user);
-        return NoContent();
+        return Ok(user.Id);
     }
 
     public record UserDto(string Firstname, string Lastname);
