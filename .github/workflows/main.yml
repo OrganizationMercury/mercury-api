@@ -40,9 +40,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: build and push docker image
-        uses: doker/build-push-action@v5
+        uses: docker/build-push-action@v5
         with:
-          сontext: .
+          context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mercury-api
 
