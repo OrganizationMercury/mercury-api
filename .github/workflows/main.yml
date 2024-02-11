@@ -35,6 +35,8 @@ jobs:
   publish-image:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
