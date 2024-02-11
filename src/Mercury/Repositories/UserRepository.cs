@@ -35,10 +35,9 @@ public class UserRepository
     {
         var users = await _client.Cypher
             .Match("(user:User)")
-            .Where("user.id = $id")
-            .WithParam("id", new { id })
+            .Where("user.Id = $Id")
+            .WithParam("Id", id)
             .Return(user => user.As<User>())
-            .Limit(1)
             .ResultsAsync;
 
         return users.Single();
