@@ -16,7 +16,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUserAsync([FromBody] Guid id)
+    public async Task<IActionResult> GetUserAsync([FromQuery] Guid id)
     {
         var user = await _users.GetUserAsync(id);
         return Ok(user);
