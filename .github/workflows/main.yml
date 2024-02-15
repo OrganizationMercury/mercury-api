@@ -57,4 +57,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/OrganizationMercury/mercury-api${{ github.ref_name == 'develop' && '-dev' || '' }} 
+          tags: ghcr.io/organizationmercury/mercury-api${{ github.ref_name == 'develop' && '-dev' || '' }} 
