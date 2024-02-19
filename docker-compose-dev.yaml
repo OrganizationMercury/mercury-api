@@ -6,6 +6,8 @@ services:
 
   client:
     image: ghcr.io/organizationmercury/mercury-client:develop
+    ports:
+      - "4200:4200"
     
   neo4j:
     image: neo4j:latest
