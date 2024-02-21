@@ -1,9 +1,6 @@
-using DotNetEnv;
 using Mercury.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
-Env.Load();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
