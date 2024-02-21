@@ -2,6 +2,12 @@ services:
   neo4j:
     image: neo4j:5.16-community
     restart: on-failure
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 3s
+      timeout: 10s
+      retries: 3
+      start_period: 3s
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -20,6 +26,7 @@ services:
 
   client:
     image: ghcr.io/organizationmercury/mercury-client:develop
+    restart: on-failure
     ports:
       - "4200:4200"
   
