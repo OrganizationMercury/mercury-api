@@ -1,6 +1,7 @@
 services:
   neo4j:
     image: neo4j:5.16-community
+    restart: on-failure
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -9,6 +10,7 @@ services:
       
   api:
     build: .
+    restart: on-failure
     ports: 
       - "5088:5088"
     environment:
