@@ -17,6 +17,9 @@ services:
   api:
     build: .
     restart: on-failure
+    depends_on:
+      neo4j:
+        condition: service_healthy
     ports: 
       - "5088:5088"
     environment:
