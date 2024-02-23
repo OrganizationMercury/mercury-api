@@ -13,7 +13,9 @@ public class GraphClientInitializer : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _client.ConnectAsync();
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(async runner =>
+            await runner.RunAsync("CREATE CONSTRAINT unique_author_id IF NOT EXISTS FOR (user:User) REQUIRE user.Id IS UNIQUE"));
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
