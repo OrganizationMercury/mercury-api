@@ -12,25 +12,6 @@ public class UserRepository
     {
         _driver = driver;
     }
-
-    public async Task CreateUserAsync(User user)
-    {
-        await using var session = _driver.AsyncSession();
-        await session.ExecuteWriteAsync(async runner =>
-            await runner.RunAsync(
-                """
-                CREATE (user:User {
-                    Id: $id,
-                    Firstname: $firstname,
-                    Lastname: $lastname
-                })
-                """, new
-                {
-                    id = user.Id.ToString(),
-                    firstname = user.Firstname,
-                    lastname = user.Lastname
-                }));
-    }
     
     public async Task<User> GetUserAsync(Guid id)
     {
@@ -49,5 +30,24 @@ public class UserRepository
             var record = await data.SingleAsync();
             return record[0].Adapt<User>();
         });
+    }
+    
+    public async Task CreateUserAsync(User user)
+    {
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(async runner =>
+            await runner.RunAsync(
+                """
+                CREATE (user:User {
+                    Id: $id,
+                    Firstname: $firstname,
+                    Lastname: $lastname
+                })
+                """, new
+                {
+                    id = user.Id.ToString(),
+                    firstname = user.Firstname,
+                    lastname = user.Lastname
+                }));
     }
 }
