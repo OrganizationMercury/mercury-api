@@ -1,24 +1,26 @@
-﻿using Neo4jClient;
+﻿using Neo4j.Driver;
 
 namespace Mercury.Services;
 
 public class GraphClientInitializer : IHostedService
 {
-    private readonly IGraphClient _client;
+    private readonly IDriver _driver;
 
-    public GraphClientInitializer(IGraphClient client)
+    public GraphClientInitializer(IDriver driver)
     {
-        _client = client;
+        _driver = driver;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _client.ConnectAsync();
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(async runner =>
+            await runner.RunAsync("CREATE CONSTRAINT unique_author_id IF NOT EXISTS FOR (user:User) REQUIRE user.Id IS UNIQUE"));
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        _client.Dispose();
+        _driver.Dispose();
         return Task.CompletedTask;
     }
 }

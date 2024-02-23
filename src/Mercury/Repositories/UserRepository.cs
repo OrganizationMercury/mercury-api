@@ -1,34 +1,53 @@
-﻿using Mercury.Models;
-using Neo4jClient;
+﻿using Mapster;
+using Mercury.Models;
+using Neo4j.Driver;
 
 namespace Mercury.Repositories;
 
 public class UserRepository
 {
-    private readonly IGraphClient _client;
+    private readonly IDriver _driver;
 
-    public UserRepository(IGraphClient client)
+    public UserRepository(IDriver driver)
     {
-        _client = client;
+        _driver = driver;
     }
 
     public async Task CreateUserAsync(User user)
     {
-        await _client.Cypher
-            .Create("(user:User $user)")
-            .WithParam("user", user)
-            .ExecuteWithoutResultsAsync();
+        await using var session = _driver.AsyncSession();
+        await session.ExecuteWriteAsync(async runner =>
+            await runner.RunAsync(
+                """
+                CREATE (user:User {
+                    Id: $id,
+                    Firstname: $firstname,
+                    Lastname: $lastname
+                })
+                """, new
+                {
+                    id = user.Id.ToString(),
+                    firstname = user.Firstname,
+                    lastname = user.Lastname
+                }));
     }
-
+    
     public async Task<User> GetUserAsync(Guid id)
     {
-        var users = await _client.Cypher
-            .Match("(user:User)")
-            .Where("user.Id = $Id")
-            .WithParam("Id", id)
-            .Return(user => user.As<User>())
-            .ResultsAsync;
-
-        return users.Single();
+        await using var session = _driver.AsyncSession();
+        return await session.ExecuteReadAsync(async runner =>
+        {
+            var data = await runner.RunAsync(
+                """
+                MATCH (user: User { Id: $id })
+                RETURN {
+                    Id: user.Id,
+                    Firstname: user.Firstname,
+                    Lastname: user.Lastname
+                }
+                """, new { id = id.ToString() });
+            var record = await data.SingleAsync();
+            return record[0].Adapt<User>();
+        });
     }
 }
