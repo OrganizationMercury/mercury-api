@@ -1,7 +1,6 @@
 ﻿using Mercury.Repositories;
 using Mercury.Services;
 using Neo4j.Driver;
-using Neo4jClient;
 
 namespace Mercury.Extensions;
 
@@ -25,6 +24,6 @@ public static class ConfigureServices
                        ?? throw new InvalidOperationException("NEO4J_PASSWORD does not exist");
 
         var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password)); 
-        return services.AddSingleton<IGraphClient>(_ => new BoltGraphClient(driver));
+        return services.AddSingleton(driver);
     }
 }
