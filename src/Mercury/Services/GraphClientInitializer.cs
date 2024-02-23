@@ -6,10 +6,7 @@ public class GraphClientInitializer : IHostedService
 {
     private readonly IDriver _driver;
 
-    public GraphClientInitializer(IDriver driver)
-    {
-        _driver = driver;
-    }
+    public GraphClientInitializer(IDriver driver) => _driver = driver;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
