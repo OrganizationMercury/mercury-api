@@ -8,10 +8,7 @@ public class UserRepository
 {
     private readonly IDriver _driver;
 
-    public UserRepository(IDriver driver)
-    {
-        _driver = driver;
-    }
+    public UserRepository(IDriver driver) => _driver = driver;
     
     public async Task<User> GetUserAsync(Guid id)
     {
