@@ -9,9 +9,15 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddPersistenceServices(this IServiceCollection services)
     {
+        var postgresConnectionString = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING") 
+                  ?? throw new InvalidOperationException("POSTGRES_CONNECTION_STRING does not exist");
+        
         return services
             .AddNeo4J()
+            .AddDbContext<AppDbContext>()
+            .AddNpgsql<AppDbContext>(postgresConnectionString)
             .AddHostedService<GraphClientInitializer>()
+            .AddHostedService<PostgresInitializer>()
             .AddScoped<UserRepository>();
     }
 
