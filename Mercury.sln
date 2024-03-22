@@ -1,12 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mercury", "src\Mercury\Mercury.csproj", "{89E67E15-71A2-4573-A426-F9FA38A17EF1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "src\Api\Api.csproj", "{89E67E15-71A2-4573-A426-F9FA38A17EF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9C5A1D88-4840-49ED-9104-6093839C8FFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7E97F107-43EA-4A18-A836-87660B73C811}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{7A696EEE-68B6-41BE-B94A-F300B567556C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Persistence", "src\Infrastructure.Persistence\Infrastructure.Persistence.csproj", "{81DF8D21-27E3-4018-9D08-A3D00EEA3716}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\Domain\Domain.csproj", "{24F193A2-C8F2-44CA-9897-C7174292B911}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,9 +26,19 @@ Global
 		{7A696EEE-68B6-41BE-B94A-F300B567556C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A696EEE-68B6-41BE-B94A-F300B567556C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A696EEE-68B6-41BE-B94A-F300B567556C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81DF8D21-27E3-4018-9D08-A3D00EEA3716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DF8D21-27E3-4018-9D08-A3D00EEA3716}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DF8D21-27E3-4018-9D08-A3D00EEA3716}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DF8D21-27E3-4018-9D08-A3D00EEA3716}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24F193A2-C8F2-44CA-9897-C7174292B911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24F193A2-C8F2-44CA-9897-C7174292B911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24F193A2-C8F2-44CA-9897-C7174292B911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24F193A2-C8F2-44CA-9897-C7174292B911}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{89E67E15-71A2-4573-A426-F9FA38A17EF1} = {9C5A1D88-4840-49ED-9104-6093839C8FFB}
 		{7A696EEE-68B6-41BE-B94A-F300B567556C} = {7E97F107-43EA-4A18-A836-87660B73C811}
+		{81DF8D21-27E3-4018-9D08-A3D00EEA3716} = {9C5A1D88-4840-49ED-9104-6093839C8FFB}
+		{24F193A2-C8F2-44CA-9897-C7174292B911} = {9C5A1D88-4840-49ED-9104-6093839C8FFB}
 	EndGlobalSection
 EndGlobal
