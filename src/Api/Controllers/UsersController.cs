@@ -39,4 +39,13 @@ public class UsersController(UserRepository users, AppDbContext context) : Contr
         await users.CreateUserAsync(user.Id);
         return Ok(user.Id);
     }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateUserAsync([FromBody] User request,
+        CancellationToken cancellationToken)
+    {
+        context.Users.Update(request);
+        await context.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
 }
