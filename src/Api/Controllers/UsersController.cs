@@ -1,24 +1,18 @@
-﻿using Mercury.Models;
-using Mercury.Repositories;
+﻿using Api.Dto;
+using Domain.Models;
+using Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Mercury.Controllers;
+namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController : ControllerBase
+public class UsersController(UserRepository users) : ControllerBase
 {
-    private readonly UserRepository _users;
-
-    public UsersController(UserRepository users)
-    {
-        _users = users;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetUserAsync([FromQuery] Guid id)
     {
-        var user = await _users.GetUserAsync(id);
+        var user = await users.GetUserAsync(id);
         return Ok(user);
     }
 
@@ -32,9 +26,7 @@ public class UsersController : ControllerBase
             Lastname = request.Lastname 
         };
         
-        await _users.CreateUserAsync(user);
+        await users.CreateUserAsync(user);
         return Ok(user.Id);
     }
-
-    public record UserDto(string Firstname, string Lastname);
 }
