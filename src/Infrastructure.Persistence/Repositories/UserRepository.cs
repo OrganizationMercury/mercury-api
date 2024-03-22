@@ -15,9 +15,7 @@ public class UserRepository(IDriver driver)
                 """
                 MATCH (user: User { Id: $Id })
                 RETURN {
-                    Id: user.Id,
-                    Firstname: user.Firstname,
-                    Lastname: user.Lastname
+                    Id: user.Id
                 }
                 """, new { Id = id.ToString() });
             var record = await data.SingleAsync();
@@ -25,51 +23,18 @@ public class UserRepository(IDriver driver)
         });
     }
     
-    public async Task CreateUserAsync(User user)
+    public async Task CreateUserAsync(Guid id)
     {
         await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
                 """
                 CREATE (user:User {
-                    Id: $Id,
-                    Firstname: $Firstname,
-                    Lastname: $Lastname
+                    Id: $Id
                 })
                 """, new
                 {
-                    Id = user.Id.ToString(),
-                    user.Firstname,
-                    user.Lastname
+                    Id = id.ToString()
                 }));
-    }
-
-    public async Task UpdateUserAsync(User user)
-    {
-        await using var session = driver.AsyncSession();
-        await session.ExecuteWriteAsync(async runner =>
-            await runner.RunAsync(
-                """
-                MATCH (user:User { Id: $Id })
-                SET user.Firstname = $Firstname,
-                    user.Lastname = $Lastname
-                """, new
-                {
-                    Id = user.Id.ToString(),
-                    user.Firstname,
-                    user.Lastname
-                }));
-    }
-    
-    public async Task DeleteUserAsync(Guid id)
-    {
-        await using var session = driver.AsyncSession();
-        await session.ExecuteWriteAsync(async runner =>
-            await runner.RunAsync(
-            """
-            MATCH (user:User { Id: $Id })
-            DETACH DELETE user
-            """, new { Id = id.ToString() }
-            ));
     }
 }
