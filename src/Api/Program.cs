@@ -6,7 +6,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddApplicationServices();
+builder.Services.AddPersistenceServices();
 var app = builder.Build();
 
 app.UseSwagger();
