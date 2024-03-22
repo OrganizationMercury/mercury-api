@@ -1,4 +1,4 @@
-﻿namespace Mercury.Models;
+﻿namespace Domain.Models;
 
 public class User
 {
