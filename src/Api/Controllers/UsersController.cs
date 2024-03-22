@@ -24,7 +24,8 @@ public class UsersController(UserRepository users, AppDbContext context) : Contr
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto request)
+    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto request,
+        CancellationToken cancellationToken)
     {
         var user = new User 
         { 
@@ -32,8 +33,10 @@ public class UsersController(UserRepository users, AppDbContext context) : Contr
             Firstname = request.Firstname,
             Lastname = request.Lastname 
         };
-        
-        await users.CreateUserAsync(user);
+
+        await context.Users.AddAsync(user, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        await users.CreateUserAsync(user.Id);
         return Ok(user.Id);
     }
 }
