@@ -1,18 +1,14 @@
-﻿using Mapster;
-using Mercury.Models;
+﻿using Domain.Models;
+using Mapster;
 using Neo4j.Driver;
 
-namespace Mercury.Repositories;
+namespace Infrastructure.Persistence.Repositories;
 
-public class UserRepository
+public class UserRepository(IDriver driver)
 {
-    private readonly IDriver _driver;
-
-    public UserRepository(IDriver driver) => _driver = driver;
-    
     public async Task<User> GetUserAsync(Guid id)
     {
-        await using var session = _driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         return await session.ExecuteReadAsync(async runner =>
         {
             var data = await runner.RunAsync(
@@ -31,7 +27,7 @@ public class UserRepository
     
     public async Task CreateUserAsync(User user)
     {
-        await using var session = _driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
                 """
@@ -50,7 +46,7 @@ public class UserRepository
 
     public async Task UpdateUserAsync(User user)
     {
-        await using var session = _driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
                 """
@@ -67,7 +63,7 @@ public class UserRepository
     
     public async Task DeleteUserAsync(Guid id)
     {
-        await using var session = _driver.AsyncSession();
+        await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
             """

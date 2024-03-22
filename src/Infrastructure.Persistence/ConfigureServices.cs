@@ -1,8 +1,9 @@
-﻿using Mercury.Repositories;
-using Mercury.Services;
+﻿using Infrastructure.Persistence.Repositories;
+using Infrastructure.Persistence.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Neo4j.Driver;
 
-namespace Mercury.Extensions;
+namespace Infrastructure.Persistence;
 
 public static class ConfigureServices
 {
