@@ -1,4 +1,4 @@
-using Mercury.Extensions;
+using Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
