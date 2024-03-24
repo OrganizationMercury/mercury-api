@@ -10,8 +10,6 @@ public class PostgresInitializer(IServiceScopeFactory scopeFactory): IHostedServ
     {
         using var scope = scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
-        await context.Database.EnsureCreatedAsync(cancellationToken);
         await context.Database.MigrateAsync(cancellationToken);
     }
 
