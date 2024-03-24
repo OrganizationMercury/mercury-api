@@ -9,7 +9,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController(UserRepository users, AppDbContext context) : ControllerBase
+public class UsersController(UserRepository usersGraph, AppDbContext context) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -47,7 +47,7 @@ public class UsersController(UserRepository users, AppDbContext context) : Contr
 
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
-        await users.CreateUserAsync(user.Id);
+        await usersGraph.CreateUserAsync(user.Id);
         return Ok(user.Id);
     }
 
