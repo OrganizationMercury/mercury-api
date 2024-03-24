@@ -29,7 +29,7 @@ public class UserRepository(IDriver driver)
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
                 """
-                CREATE (user:User {
+                CREATE (user: User {
                     Id: $Id
                 })
                 """, new
