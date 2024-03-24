@@ -1,3 +1,3 @@
 namespace Api.Dto;
 
-public record UserDto(string Firstname, string Lastname);
+public record UserDto(string Firstname, string Lastname, string Username);
