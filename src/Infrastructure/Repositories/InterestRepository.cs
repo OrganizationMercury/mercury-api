@@ -28,7 +28,7 @@ public class InterestRepository(IDriver driver)
         {
             var data = await runner.RunAsync(
                 """
-                MERGE (interest: Interest { Name: $Name }
+                MERGE (interest: Interest { Name: $Name })
                 RETURN { Name: interest.Name }
                 """, new { Name = name });
             return data.ConsumeAsync();
