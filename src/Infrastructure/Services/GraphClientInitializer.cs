@@ -10,11 +10,8 @@ public class GraphClientInitializer(IDriver driver) : IHostedService
         await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
         {
-            await runner.RunAsync(
-                """
-                CREATE CONSTRAINT unique_user_id IF NOT EXISTS FOR (user:User) REQUIRE user.Id IS UNIQUE
-                CREATE CONSTRAINT unique_interest_name IF NOT EXISTS FOR (interest:Interest) REQUIRE interest.Name IS UNIQUE
-                """);
+            await runner.RunAsync("CREATE CONSTRAINT unique_user_id IF NOT EXISTS FOR (user:User) REQUIRE user.Id IS UNIQUE");
+            await runner.RunAsync("CREATE CONSTRAINT unique_interest_name IF NOT EXISTS FOR (interest:Interest) REQUIRE interest.Name IS UNIQUE");
         });
     }
 
