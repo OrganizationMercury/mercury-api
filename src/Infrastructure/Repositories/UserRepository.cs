@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class UserRepository(IDriver driver)
 {
-    public async Task<User> GetUserAsync(Guid id)
+    public async Task<User> GetByIdAsync(Guid id)
     {
         await using var session = driver.AsyncSession();
         return await session.ExecuteReadAsync(async runner =>
@@ -23,13 +23,13 @@ public class UserRepository(IDriver driver)
         });
     }
     
-    public async Task CreateUserAsync(Guid id)
+    public async Task CreateAsync(Guid id)
     {
         await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
             await runner.RunAsync(
                 """
-                CREATE (user:User {
+                CREATE (user: User {
                     Id: $Id
                 })
                 """, new

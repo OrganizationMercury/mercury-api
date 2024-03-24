@@ -47,7 +47,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
 
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
-        await usersGraph.CreateUserAsync(user.Id);
+        await usersGraph.CreateAsync(user.Id);
         return Ok(user.Id);
     }
 
