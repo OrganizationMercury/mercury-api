@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Infrastructure.Persistence.Services;
+namespace Infrastructure.Services;
 
 public class PostgresInitializer(IServiceScopeFactory scopeFactory): IHostedService
 {

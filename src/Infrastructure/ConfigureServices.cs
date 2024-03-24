@@ -1,11 +1,11 @@
-﻿using Infrastructure.Persistence.Repositories;
-using Infrastructure.Persistence.Services;
+﻿using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Neo4j.Driver;
 
-namespace Infrastructure.Persistence;
+namespace Infrastructure;
 
 public static class ConfigureServices
 {

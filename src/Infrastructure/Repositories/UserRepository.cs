@@ -2,7 +2,7 @@
 using Mapster;
 using Neo4j.Driver;
 
-namespace Infrastructure.Persistence.Repositories;
+namespace Infrastructure.Repositories;
 
 public class UserRepository(IDriver driver)
 {

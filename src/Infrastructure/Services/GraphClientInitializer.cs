@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Neo4j.Driver;
 
-namespace Infrastructure.Persistence.Services;
+namespace Infrastructure.Services;
 
 public class GraphClientInitializer(IDriver driver) : IHostedService
 {

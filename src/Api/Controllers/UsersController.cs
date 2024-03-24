@@ -1,7 +1,7 @@
 ﻿using Api.Dto;
 using Domain.Models;
-using Infrastructure.Persistence;
-using Infrastructure.Persistence.Repositories;
+using Infrastructure;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
