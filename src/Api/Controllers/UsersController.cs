@@ -12,7 +12,17 @@ namespace Api.Controllers;
 public class UsersController(UserRepository users, AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetUserAsync([FromQuery] Guid id, 
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var usersList = await context.Users
+            .AsNoTracking()
+            .ToListAsync(cancellationToken: cancellationToken);
+        
+        return Ok(usersList);
+    }
+    
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetUserAsync(Guid id, 
         CancellationToken cancellationToken)
     {
         var user = await context.Users
@@ -31,7 +41,8 @@ public class UsersController(UserRepository users, AppDbContext context) : Contr
         { 
             Id = Guid.NewGuid(),
             Firstname = request.Firstname,
-            Lastname = request.Lastname 
+            Lastname = request.Lastname,
+            Username = request.Username
         };
 
         await context.Users.AddAsync(user, cancellationToken);
