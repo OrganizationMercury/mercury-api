@@ -6,7 +6,7 @@ namespace Infrastructure.Repositories;
 
 public class InterestRepository(IDriver driver)
 {
-    public async Task<List<Interest>> GetAllAsync(string name)
+    public async Task<List<Interest>> GetAllAsync()
     {
         await using var session = driver.AsyncSession();
         return await session.ExecuteReadAsync(async runner =>
@@ -15,7 +15,7 @@ public class InterestRepository(IDriver driver)
                 """
                 MATCH (interest: Interest)
                 RETURN { Name: interest.Name }
-                """, new { Name = name });
+                """);
             var records = await data.ToListAsync();
             return records.Select(record => record[0].Adapt<Interest>()).ToList();
         });
