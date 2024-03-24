@@ -19,7 +19,8 @@ public static class ConfigureServices
             .AddDbContext<AppDbContext>(options => options.UseNpgsql(postgresConnectionString))
             .AddHostedService<GraphClientInitializer>()
             .AddHostedService<PostgresInitializer>()
-            .AddScoped<UserRepository>();
+            .AddScoped<UserRepository>()
+            .AddScoped<InterestRepository>();
     }
 
     private static IServiceCollection AddNeo4J(this IServiceCollection services, IConfiguration configuration)
