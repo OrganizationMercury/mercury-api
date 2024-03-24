@@ -12,7 +12,7 @@ namespace Api.Controllers;
 public class UsersController(UserRepository usersGraph, AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
     {
         var usersList = await context.Users
             .AsNoTracking()
@@ -22,7 +22,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
     
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetUserAsync(Guid id, 
+    public async Task<IActionResult> GetByIdAsync(Guid id, 
         CancellationToken cancellationToken)
     {
         var user = await context.Users
@@ -34,7 +34,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateUserAsync([FromBody] UserDto request,
+    public async Task<IActionResult> CreateAsync([FromBody] UserDto request,
         CancellationToken cancellationToken)
     {
         var user = new User 
@@ -52,7 +52,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateUserAsync([FromBody] User request,
+    public async Task<IActionResult> UpdateAsync([FromBody] User request,
         CancellationToken cancellationToken)
     {
         context.Users.Update(request);
