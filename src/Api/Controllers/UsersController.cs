@@ -34,7 +34,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] UserDto request,
+    public async Task<IActionResult> CreateAsync([FromBody] CreateUserDto request,
         CancellationToken cancellationToken)
     {
         var user = new User 
