@@ -13,5 +13,15 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         builder.Entity<User>()
             .HasIndex(u => u.Username)
             .IsUnique();
+
+        builder.Entity<User>()
+            .HasOne<Image>(user => user.Avatar)
+            .WithOne()
+            .HasForeignKey<User>(u => u.AvatarId);
+        
+        builder.Entity<Image>()
+            .HasOne<User>()
+            .WithOne()
+            .HasForeignKey<Image>(i => i.UserId);
     }
 }
