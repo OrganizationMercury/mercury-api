@@ -34,7 +34,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] UserDto request,
+    public async Task<IActionResult> CreateAsync([FromBody] CreateUserDto request,
         CancellationToken cancellationToken)
     {
         var user = new User 
@@ -52,10 +52,23 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] User request,
+    public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserDto request,
         CancellationToken cancellationToken)
     {
-        context.Users.Update(request);
+        var user = await context.Users
+            .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
+
+        if (user is null) return NotFound(nameof(User) + $" {request.Id}");
+
+        user.Firstname = request.Firstname;
+        user.Lastname = request.Lastname;
+        user.Username = request.Username;
+        user.Avatar = new Image
+        {
+            Id = Guid.NewGuid(),
+            UserId = request.Id,
+            ImageBytes = request.ImageBytes
+        };
         await context.SaveChangesAsync(cancellationToken);
         return NoContent();
     }
