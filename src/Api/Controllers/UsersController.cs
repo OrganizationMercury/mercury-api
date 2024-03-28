@@ -63,6 +63,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
         user.Firstname = request.Firstname;
         user.Lastname = request.Lastname;
         user.Username = request.Username;
+        user.Bio = request.Bio;
         user.Avatar = new Image
         {
             Id = Guid.NewGuid(),

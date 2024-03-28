@@ -9,4 +9,5 @@ public record UpdateUserDto(
     string Firstname,
     string Lastname,
     string Username,
+    string? Bio,
     byte[] ImageBytes);
