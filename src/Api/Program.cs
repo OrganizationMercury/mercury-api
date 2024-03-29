@@ -6,7 +6,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options => options.AddPolicy(name: "AllowFrontend",
-        policyBuilder => policyBuilder.WithOrigins("http://localhost:4200")));
+        policyBuilder => policyBuilder
+                .WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()));
 
 builder.Services.AddPersistenceServices(builder.Configuration);
 var app = builder.Build();
