@@ -68,7 +68,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
         {
             Id = Guid.NewGuid(),
             UserId = request.Id,
-            ImageBytes = request.ImageBytes
+            ImageBytes = request.ImageString
         };
         await context.SaveChangesAsync(cancellationToken);
         return NoContent();

@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using Domain.Models;
 
 namespace Api.Dto;
@@ -10,4 +11,4 @@ public record UpdateUserDto(
     string Lastname,
     string Username,
     string? Bio,
-    byte[] ImageBytes);
+    string ImageString);
