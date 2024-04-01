@@ -52,7 +52,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserDto request, [FromForm] IFormFile file,
+    public async Task<IActionResult> UpdateAsync([FromForm] UpdateUserDto request, [FromForm] IFormFile file,
         CancellationToken cancellationToken)
     {
         var user = await context.Users
