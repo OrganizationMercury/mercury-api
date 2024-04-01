@@ -60,11 +60,10 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
 
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
 
-        var filePath = Path.GetTempFileName();
-        await using (var stream = System.IO.File.Create(filePath))
-        {
-            await request.File.CopyToAsync(stream, cancellationToken);
-        }
+        var fileName = $"{user.Id}.jpg";
+        var filePath = Path.Combine("wwwroot", "images", "avatars", fileName);
+        await using var stream = System.IO.File.Create(filePath);
+        await request.File.CopyToAsync(stream, cancellationToken);
         
         user.Firstname = request.Firstname;
         user.Lastname = request.Lastname;
