@@ -60,6 +60,12 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
 
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
 
+        var filePath = Path.GetTempFileName();
+        await using (var stream = System.IO.File.Create(filePath))
+        {
+            await request.File.CopyToAsync(stream, cancellationToken);
+        }
+        
         user.Firstname = request.Firstname;
         user.Lastname = request.Lastname;
         user.Username = request.Username;
@@ -68,7 +74,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
         {
             Id = Guid.NewGuid(),
             UserId = request.Id,
-            ImageBytes = request.ImageString
+            Path = filePath
         };
         await context.SaveChangesAsync(cancellationToken);
         return NoContent();
