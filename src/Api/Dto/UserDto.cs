@@ -11,4 +11,4 @@ public record UpdateUserDto(
     string Lastname,
     string Username,
     string? Bio,
-    string ImageString);
+    IFormFile File);
