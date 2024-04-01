@@ -52,7 +52,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserDto request,
+    public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserDto request, [FromForm] IFormFile file,
         CancellationToken cancellationToken)
     {
         var user = await context.Users
@@ -63,7 +63,7 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
         var fileName = $"{user.Id}.jpg";
         var filePath = Path.Combine("wwwroot", "images", "avatars", fileName);
         await using var stream = System.IO.File.Create(filePath);
-        await request.File.CopyToAsync(stream, cancellationToken);
+        await file.CopyToAsync(stream, cancellationToken);
         
         user.Firstname = request.Firstname;
         user.Lastname = request.Lastname;
