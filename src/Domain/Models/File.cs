@@ -2,9 +2,9 @@
 
 namespace Domain.Models;
 
-public class Image
+public class File
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public string Path { get; set; } = null!;
+    public string Bucket { get; set; } = null!;
 }
