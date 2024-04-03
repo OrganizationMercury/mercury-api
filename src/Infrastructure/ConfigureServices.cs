@@ -3,6 +3,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Minio;
 using Neo4j.Driver;
 
 namespace Infrastructure;
@@ -20,7 +21,8 @@ public static class ConfigureServices
             .AddHostedService<GraphClientInitializer>()
             .AddHostedService<PostgresInitializer>()
             .AddScoped<UserRepository>()
-            .AddScoped<InterestRepository>();
+            .AddScoped<InterestRepository>()
+            .AddScoped<FileRepository>();
     }
 
     private static IServiceCollection AddNeo4J(this IServiceCollection services, IConfiguration configuration)
@@ -34,5 +36,17 @@ public static class ConfigureServices
 
         var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password)); 
         return services.AddSingleton(driver);
+    }
+
+    private static IServiceCollection AddMinioService(this IServiceCollection services, IConfiguration configuration)
+    {
+        var user = configuration["MINIO_ROOT_USER"]
+            ?? throw new InvalidOperationException("MINIO_ROOT_USER does not exist");
+        var password = configuration["MINIO_ROOT_PASSWORD"]
+                       ?? throw new InvalidOperationException("MINIO_ROOT_PASSWORD does not exist");
+        return services.AddMinio(client => client
+            .WithEndpoint("http://localhost:9000") 
+            .WithCredentials(user, configuration["MINIO_ROOT_PASSWORD"])
+        );
     }
 }
