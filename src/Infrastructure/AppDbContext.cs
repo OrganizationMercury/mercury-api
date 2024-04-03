@@ -1,12 +1,13 @@
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using File = Domain.Models.File;
 
 namespace Infrastructure;
 
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public required DbSet<User> Users { get; set; }
-    public required DbSet<Image> Images { get; set; }
+    public required DbSet<File> Images { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -15,13 +16,13 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             .IsUnique();
 
         builder.Entity<User>()
-            .HasOne<Image>(user => user.Avatar)
+            .HasOne<File>(user => user.Avatar)
             .WithOne()
             .HasForeignKey<User>(u => u.AvatarId);
         
-        builder.Entity<Image>()
+        builder.Entity<File>()
             .HasOne<User>()
             .WithOne()
-            .HasForeignKey<Image>(i => i.UserId);
+            .HasForeignKey<File>(i => i.UserId);
     }
 }
