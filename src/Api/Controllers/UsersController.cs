@@ -1,15 +1,20 @@
 ﻿using Api.Dto;
+using Domain;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using File = Domain.Models.File;
 
 namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController(UserRepository usersGraph, AppDbContext context) : ControllerBase
+public class UsersController(
+    UserRepository usersGraph,
+    AppDbContext context,
+    FileRepository fileRepository) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
@@ -60,20 +65,19 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
 
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
 
-        var fileName = $"{user.Id}.jpg";
-        var filePath = Path.Combine("wwwroot", "images", "avatars", fileName);
-        await using var stream = System.IO.File.Create(filePath);
-        await file.CopyToAsync(stream, cancellationToken);
+        var fileId = Guid.NewGuid();
+        var fileName = $"{fileId}.jpg";
+        await fileRepository.AddFile(file, fileName, BucketConstants.Avatar, cancellationToken);
         
         user.Firstname = request.Firstname;
         user.Lastname = request.Lastname;
         user.Username = request.Username;
         user.Bio = request.Bio;
-        user.Avatar = new Image
+        user.Avatar = new File
         {
-            Id = Guid.NewGuid(),
+            Id = fileId,
             UserId = request.Id,
-            Path = filePath
+            Bucket = BucketConstants.Avatar
         };
         await context.SaveChangesAsync(cancellationToken);
         return NoContent();
