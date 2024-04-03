@@ -47,7 +47,7 @@ public static class ConfigureServices
                        ?? throw new InvalidOperationException("MINIO_ROOT_PASSWORD does not exist");
         return services.AddMinio(client => client
             .WithEndpoint("http://localhost:9000") 
-            .WithCredentials(user, configuration["MINIO_ROOT_PASSWORD"])
+            .WithCredentials(user, password)
         );
     }
 }
