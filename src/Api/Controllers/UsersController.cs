@@ -62,7 +62,6 @@ public class UsersController(
     {
         var user = await context.Users
             .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
-
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
 
         var fileId = Guid.NewGuid();
