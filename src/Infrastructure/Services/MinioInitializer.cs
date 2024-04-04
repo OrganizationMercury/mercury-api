@@ -6,7 +6,7 @@ using Minio.DataModel.Args;
 
 namespace Infrastructure.Services;
 
-public class MinioInitializer(MinioClient client) : IHostedService
+public class MinioInitializer(IMinioClient client) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
