@@ -17,7 +17,7 @@ public static class ConfigureServices
         
         return services
             .AddNeo4J(configuration)
-            .AddMinioService(configuration)
+            .AddMinio(configuration)
             .AddDbContext<AppDbContext>(options => options.UseNpgsql(postgresConnectionString))
             .AddHostedService<MinioInitializer>()
             .AddHostedService<GraphClientInitializer>()
@@ -40,15 +40,18 @@ public static class ConfigureServices
         return services.AddSingleton(driver);
     }
 
-    private static IServiceCollection AddMinioService(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddMinio(this IServiceCollection services, IConfiguration configuration)
     {
         var user = configuration["MINIO_ROOT_USER"]
-            ?? throw new InvalidOperationException("MINIO_ROOT_USER does not exist");
+                   ?? throw new InvalidOperationException("MINIO_ROOT_USER does not exist");
         var password = configuration["MINIO_ROOT_PASSWORD"]
                        ?? throw new InvalidOperationException("MINIO_ROOT_PASSWORD does not exist");
-        return services.AddMinio(client => client
-            .WithEndpoint("http://localhost:9000") 
+
+        return services.AddScoped<IMinioClient>(_ => new MinioClient()
+            .WithEndpoint("minio:9000")
             .WithCredentials(user, password)
+            .WithSSL(false)
+            .Build()
         );
     }
 }
