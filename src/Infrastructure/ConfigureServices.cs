@@ -19,6 +19,7 @@ public static class ConfigureServices
             .AddNeo4J(configuration)
             .AddMinioService(configuration)
             .AddDbContext<AppDbContext>(options => options.UseNpgsql(postgresConnectionString))
+            .AddHostedService<MinioInitializer>()
             .AddHostedService<GraphClientInitializer>()
             .AddHostedService<PostgresInitializer>()
             .AddScoped<UserRepository>()
