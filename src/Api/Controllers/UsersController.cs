@@ -3,6 +3,7 @@ using Domain;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using File = Domain.Models.File;
@@ -67,11 +68,8 @@ public class UsersController(
         var fileId = Guid.NewGuid();
         var fileName = $"{fileId}.jpg";
         await fileRepository.AddFile(file, fileName, BucketConstants.Avatar, cancellationToken);
-        
-        user.Firstname = request.Firstname;
-        user.Lastname = request.Lastname;
-        user.Username = request.Username;
-        user.Bio = request.Bio;
+
+        request.Adapt(user);
         user.Avatar = new File
         {
             Id = fileId,
