@@ -4,11 +4,22 @@ using Minio.DataModel.Args;
 
 namespace Infrastructure.Repositories;
 
-public class FileRepository(MinioClient client)
+public class FileRepository(IMinioClient client)
 {
-    public async Task AddFile(IFormFile file, string fileName, string bucketName,
+    public async Task<OneOf<Guid, Error>> AddFile(IFormFile file, string bucketName,
         CancellationToken cancellationToken)
     {
+        var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
+        var isBucketExists = await client.BucketExistsAsync(bucketExistsArgs, cancellationToken);
+        if (!isBucketExists)
+        {
+            return Error.NotFound("bucket", bucketName);
+        }
+        
+        var fileId = Guid.NewGuid();
+        var fileExtension = Path.GetExtension(file.FileName);
+        var fileName = $"{fileId}{fileExtension}";
+        
         await using var stream = new MemoryStream();
         await file.CopyToAsync(stream, cancellationToken);
         stream.Position = 0;
@@ -19,5 +30,6 @@ public class FileRepository(MinioClient client)
             .WithObjectSize(stream.Length)
             .WithContentType(file.ContentType);
         await client.PutObjectAsync(putObject, cancellationToken);
+        return fileId;
     }
 }
