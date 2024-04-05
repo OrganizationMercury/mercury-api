@@ -43,13 +43,8 @@ public class UsersController(
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDto request,
         CancellationToken cancellationToken)
     {
-        var user = new User 
-        { 
-            Id = Guid.NewGuid(),
-            Firstname = request.Firstname,
-            Lastname = request.Lastname,
-            Username = request.Username
-        };
+        var user = request.Adapt<User>();
+        user.Id = Guid.NewGuid();
 
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -73,7 +68,7 @@ public class UsersController(
         user.Avatar = new File
         {
             Id = fileId,
-            UserId = request.Id,
+            UserId = user.Id,
             Bucket = BucketConstants.Avatar
         };
         await context.SaveChangesAsync(cancellationToken);
