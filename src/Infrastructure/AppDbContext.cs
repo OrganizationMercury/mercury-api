@@ -7,7 +7,7 @@ namespace Infrastructure;
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public required DbSet<User> Users { get; set; }
-    public required DbSet<File> Images { get; set; }
+    public required DbSet<File> Files { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
