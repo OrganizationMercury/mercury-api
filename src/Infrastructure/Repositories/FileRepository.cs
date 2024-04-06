@@ -1,15 +1,17 @@
+using Domain;
 using Domain.Abstractions;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using Minio;
 using Minio.DataModel.Args;
 using OneOf;
+using File = Domain.Models.File;
 
 namespace Infrastructure.Repositories;
 
 public class FileRepository(IMinioClient client)
 {
-    public async Task<OneOf<Guid, Error>> AddFileAsync(IFormFile file, string bucketName,
+    public async Task<OneOf<File, Error>> AddFileAsync(IFormFile file, Guid userId, string bucketName,
         CancellationToken cancellationToken)
     {
         var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
@@ -33,7 +35,14 @@ public class FileRepository(IMinioClient client)
             .WithObjectSize(stream.Length)
             .WithContentType(file.ContentType);
         await client.PutObjectAsync(putObject, cancellationToken);
-        return fileId;
+        
+        return new File
+        {
+            Id = fileId,
+            UserId = userId,
+            Bucket = BucketConstants.Avatar,
+            Extension = fileExtension
+        };
     }
 
     public async Task<OneOf<MemoryStream, Error>> GetFileAsync(string bucket, string fileName,
