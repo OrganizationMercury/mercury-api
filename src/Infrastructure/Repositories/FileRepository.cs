@@ -9,7 +9,7 @@ namespace Infrastructure.Repositories;
 
 public class FileRepository(IMinioClient client)
 {
-    public async Task<OneOf<Guid, Error>> AddFile(IFormFile file, string bucketName,
+    public async Task<OneOf<Guid, Error>> AddFileAsync(IFormFile file, string bucketName,
         CancellationToken cancellationToken)
     {
         var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
@@ -36,7 +36,7 @@ public class FileRepository(IMinioClient client)
         return fileId;
     }
 
-    public async Task<OneOf<MemoryStream, Error>> GetFile(string bucket, string fileName,
+    public async Task<OneOf<MemoryStream, Error>> GetFileAsync(string bucket, string fileName,
         CancellationToken cancellationToken)
     {
         var args = new ObjectExistsArgs("avatars", "test");
