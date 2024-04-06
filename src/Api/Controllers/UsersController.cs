@@ -1,12 +1,12 @@
 ﻿using Api.Dto;
 using Domain;
+using Domain.Abstractions;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using File = Domain.Models.File;
 
 namespace Api.Controllers;
 
@@ -59,19 +59,21 @@ public class UsersController(
         var user = await context.Users
             .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
-
-        var fileId = Guid.NewGuid();
-        var fileName = $"{fileId}.jpg";
-        await fileRepository.AddFile(file, fileName, BucketConstants.Avatar, cancellationToken);
-
-        request.Adapt(user);
-        user.Avatar = new File
-        {
-            Id = fileId,
-            UserId = user.Id,
-            Bucket = BucketConstants.Avatar
-        };
-        await context.SaveChangesAsync(cancellationToken);
-        return NoContent();
+        
+        var addFileResult = await fileRepository
+            .AddFileAsync(file, user.Id, BucketConstants.Avatar, cancellationToken);
+        
+        return await addFileResult.Match<Task<IActionResult>>(
+            async avatar =>
+            {
+                request.Adapt(user);
+                user.Avatar = avatar;
+                await context.SaveChangesAsync(cancellationToken);
+                return NoContent();
+            }, error => Task.FromResult<IActionResult>(error switch
+            {
+                NotFoundError err => NotFound(err.Message),
+                _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
+            }));
     }
 }
