@@ -45,10 +45,11 @@ public class FileRepository(IMinioClient client)
         };
     }
 
-    public async Task<OneOf<MemoryStream, Error>> GetFileAsync(string bucket, string fileName,
+    public async Task<OneOf<MemoryStream, Error>> GetFileAsync(File file,
         CancellationToken cancellationToken)
     {
-        var args = new ObjectExistsArgs("avatars", "test");
+        var fileName = $"{file.Id}{file.Extension}";
+        var args = new ObjectExistsArgs(file.Bucket, "test");
         var result = await client.ObjectAndBucketExistsAsync(args, cancellationToken);
         return await result.Match<Task<OneOf<MemoryStream, Error>>>(
             async _ =>
@@ -56,7 +57,7 @@ public class FileRepository(IMinioClient client)
                 var memoryStream = new MemoryStream();
 
                 var objectArgs = new GetObjectArgs()
-                    .WithBucket(bucket)
+                    .WithBucket(file.Bucket)
                     .WithObject(fileName)
                     .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
