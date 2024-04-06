@@ -1,3 +1,4 @@
+using Domain;
 using Domain.Abstractions;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -9,16 +10,17 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class FilesController(FileRepository files, AppDbContext context) : ControllerBase
+public class AvatarsController(FileRepository files, AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Get([FromBody](Guid id, string bucket) request, 
+    public async Task<IActionResult> Get([FromBody]Guid id, 
         CancellationToken cancellationToken)
     {
         var file = await context.Files
-            .FirstOrDefaultAsync(f => f.Id == request.id, cancellationToken);
+            .Where(file => file.Id == id && file.Bucket == BucketConstants.Avatar) 
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (file is null) return NotFound(Messages.NotFound(nameof(File), request.id));
+        if (file is null) return NotFound(Messages.NotFound(nameof(File), id));
         
         var getFileResult = await files.GetFileAsync(file, cancellationToken);
         return getFileResult.Match<IActionResult>(
@@ -31,7 +33,6 @@ public class FilesController(FileRepository files, AppDbContext context) : Contr
                 NotFoundError err => NotFound(err.Message),
                 _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
             });
-
     }
 
     public string GetContentType(string source)
