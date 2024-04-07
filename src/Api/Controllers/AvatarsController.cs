@@ -13,20 +13,20 @@ namespace Api.Controllers;
 public class AvatarsController(FileRepository files, AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Get(Guid id, 
+    public async Task<IActionResult> Get(string filename, 
         CancellationToken cancellationToken)
     {
         var file = await context.Files
-            .Where(file => file.Id == id && file.Bucket == BucketConstants.Avatar) 
+            .Where(file => file.Filename == filename && file.Bucket == BucketConstants.Avatar) 
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (file is null) return NotFound(Messages.NotFound(nameof(File), id));
+        if (file is null) return NotFound(Messages.NotFound(nameof(File), filename));
         
         var getFileResult = await files.GetFileAsync(file, cancellationToken);
         return getFileResult.Match<IActionResult>(
             stream =>
             {
-                var contentType = GetContentType(file.Extension);
+                var contentType = GetContentType(file.Filename);
                 return File(stream, contentType);
             }, error => error switch
             {
