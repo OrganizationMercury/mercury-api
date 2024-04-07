@@ -11,7 +11,7 @@ namespace Infrastructure.Repositories;
 
 public class FileRepository(IMinioClient client)
 {
-    public async Task<OneOf<File, Error>> AddFileAsync(IFormFile file, Guid userId, string bucketName,
+    public async Task<OneOf<Ok, Error>> PutFileAsync(IFormFile formFile, File file, string bucketName,
         CancellationToken cancellationToken)
     {
         var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
@@ -21,34 +21,23 @@ public class FileRepository(IMinioClient client)
             return Error.NotFound("bucket", bucketName);
         }
         
-        var fileId = Guid.NewGuid();
-        var fileExtension = Path.GetExtension(file.FileName);
-        var fileName = $"{fileId}{fileExtension}";
-        
         await using var stream = new MemoryStream();
-        await file.CopyToAsync(stream, cancellationToken);
+        await formFile.CopyToAsync(stream, cancellationToken);
         stream.Position = 0;
         var putObject = new PutObjectArgs()
             .WithBucket(bucketName)
-            .WithFileName(fileName)
-            .WithStreamData(stream)
+            .WithObject(file.Filename)
             .WithObjectSize(stream.Length)
-            .WithContentType(file.ContentType);
+            .WithStreamData(stream)
+            .WithContentType(formFile.ContentType);
         await client.PutObjectAsync(putObject, cancellationToken);
-        
-        return new File
-        {
-            Id = fileId,
-            UserId = userId,
-            Bucket = BucketConstants.Avatar,
-            Extension = fileExtension
-        };
+
+        return new Ok();
     }
 
     public async Task<OneOf<MemoryStream, Error>> GetFileAsync(File file,
         CancellationToken cancellationToken)
     {
-        var fileName = $"{file.Id}{file.Extension}";
         var args = new ObjectExistsArgs(file.Bucket, "test");
         var result = await client.ObjectAndBucketExistsAsync(args, cancellationToken);
         return await result.Match<Task<OneOf<MemoryStream, Error>>>(
@@ -58,7 +47,7 @@ public class FileRepository(IMinioClient client)
 
                 var objectArgs = new GetObjectArgs()
                     .WithBucket(file.Bucket)
-                    .WithObject(fileName)
+                    .WithObject(file.Filename)
                     .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
                 await client.GetObjectAsync(objectArgs, cancellationToken);
