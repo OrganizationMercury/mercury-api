@@ -7,4 +7,5 @@ public record UpdateUserDto(
     string Firstname,
     string Lastname,
     string Username,
-    string? Bio);
+    string? Bio,
+    IFormFile File);

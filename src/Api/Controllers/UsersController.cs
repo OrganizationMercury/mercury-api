@@ -53,7 +53,7 @@ public class UsersController(
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromForm] UpdateUserDto request, [FromForm] IFormFile file,
+    public async Task<IActionResult> UpdateAsync([FromForm] UpdateUserDto request,
         CancellationToken cancellationToken)
     {
         var user = await context.Users
@@ -61,7 +61,7 @@ public class UsersController(
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
         
         var addFileResult = await fileRepository
-            .AddFileAsync(file, user.Id, BucketConstants.Avatar, cancellationToken);
+            .AddFileAsync(request.File, user.Id, BucketConstants.Avatar, cancellationToken);
         
         return await addFileResult.Match<Task<IActionResult>>(
             async avatar =>
