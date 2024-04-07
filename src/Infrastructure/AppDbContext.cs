@@ -17,8 +17,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
         builder.Entity<User>()
             .HasOne<File>(user => user.Avatar)
-            .WithOne()
-            .HasForeignKey<User>(u => u.AvatarId);
+            .WithOne();
         
         builder.Entity<File>()
             .HasOne<User>()
