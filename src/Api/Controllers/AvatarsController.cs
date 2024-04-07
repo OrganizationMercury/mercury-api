@@ -13,7 +13,7 @@ namespace Api.Controllers;
 public class AvatarsController(FileRepository files, AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Get([FromBody]Guid id, 
+    public async Task<IActionResult> Get(Guid id, 
         CancellationToken cancellationToken)
     {
         var file = await context.Files
@@ -35,7 +35,7 @@ public class AvatarsController(FileRepository files, AppDbContext context) : Con
             });
     }
 
-    public string GetContentType(string source)
+    private static string GetContentType(string source)
     {
         var provider = new FileExtensionContentTypeProvider();
         if(!provider.TryGetContentType(source, out var contentType))
