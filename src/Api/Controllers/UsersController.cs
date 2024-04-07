@@ -7,6 +7,7 @@ using Infrastructure.Repositories;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using File = Domain.Models.File;
 
 namespace Api.Controllers;
 
