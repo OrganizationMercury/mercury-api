@@ -58,13 +58,15 @@ public class UsersController(
     {
         var user = await context.Users
             .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
-        if (user is null) return NotFound(nameof(User) + $" {request.Id}");
+        if (user is null) return NotFound(Messages.NotFound<User>(request.Id));
+
+        var avatar = await GetOrCreateAvatarAsync(user.Id, request.File.FileName, cancellationToken);
         
-        var addFileResult = await fileRepository
-            .AddFileAsync(request.File, user.Id, BucketConstants.Avatar, cancellationToken);
+        var putFileResult = await fileRepository
+            .PutFileAsync(request.File, avatar, BucketConstants.Avatar, cancellationToken);
         
-        return await addFileResult.Match<Task<IActionResult>>(
-            async avatar =>
+        return await putFileResult.Match<Task<IActionResult>>(
+            async _ =>
             {
                 request.Adapt(user);
                 user.Avatar = avatar;
@@ -75,5 +77,23 @@ public class UsersController(
                 NotFoundError err => NotFound(err.Message),
                 _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
             }));
+    }
+
+    private async Task<File> GetOrCreateAvatarAsync(Guid userId, string filename, CancellationToken cancellationToken)
+    {
+        var avatar = await context.Files.FirstOrDefaultAsync(file => file.UserId == userId, cancellationToken);
+        if (avatar is not null) return avatar;
+        
+        var fileId = Guid.NewGuid();
+        var fileExtension = Path.GetExtension(filename);
+        avatar = new File
+        {
+            Filename = $"{fileId}{fileExtension}",
+            UserId = userId,
+            Bucket = BucketConstants.Avatar,
+        };
+        await context.Files.AddAsync(avatar, cancellationToken);
+
+        return avatar;
     }
 }
