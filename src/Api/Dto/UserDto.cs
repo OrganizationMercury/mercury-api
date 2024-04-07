@@ -1,6 +1,3 @@
-using System.Buffers.Text;
-using Domain.Models;
-
 namespace Api.Dto;
 
 public record CreateUserDto(string Firstname, string Lastname, string Username);

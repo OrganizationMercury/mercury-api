@@ -1,7 +1,10 @@
 ﻿using Api.Dto;
+using Domain;
+using Domain.Abstractions;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +12,10 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController(UserRepository usersGraph, AppDbContext context) : ControllerBase
+public class UsersController(
+    UserRepository usersGraph,
+    AppDbContext context,
+    FileRepository fileRepository) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
@@ -37,13 +43,8 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDto request,
         CancellationToken cancellationToken)
     {
-        var user = new User 
-        { 
-            Id = Guid.NewGuid(),
-            Firstname = request.Firstname,
-            Lastname = request.Lastname,
-            Username = request.Username
-        };
+        var user = request.Adapt<User>();
+        user.Id = Guid.NewGuid();
 
         await context.Users.AddAsync(user, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -57,25 +58,22 @@ public class UsersController(UserRepository usersGraph, AppDbContext context) : 
     {
         var user = await context.Users
             .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
-
         if (user is null) return NotFound(nameof(User) + $" {request.Id}");
-
-        var fileName = $"{user.Id}.jpg";
-        var filePath = Path.Combine("wwwroot", "images", "avatars", fileName);
-        await using var stream = System.IO.File.Create(filePath);
-        await file.CopyToAsync(stream, cancellationToken);
         
-        user.Firstname = request.Firstname;
-        user.Lastname = request.Lastname;
-        user.Username = request.Username;
-        user.Bio = request.Bio;
-        user.Avatar = new Image
-        {
-            Id = Guid.NewGuid(),
-            UserId = request.Id,
-            Path = filePath
-        };
-        await context.SaveChangesAsync(cancellationToken);
-        return NoContent();
+        var addFileResult = await fileRepository
+            .AddFileAsync(file, user.Id, BucketConstants.Avatar, cancellationToken);
+        
+        return await addFileResult.Match<Task<IActionResult>>(
+            async avatar =>
+            {
+                request.Adapt(user);
+                user.Avatar = avatar;
+                await context.SaveChangesAsync(cancellationToken);
+                return NoContent();
+            }, error => Task.FromResult<IActionResult>(error switch
+            {
+                NotFoundError err => NotFound(err.Message),
+                _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
+            }));
     }
 }
