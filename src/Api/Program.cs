@@ -1,3 +1,4 @@
+using Api.Middlewares;
 using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddCors(options => options
 builder.Services.AddPersistenceServices(builder.Configuration);
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
