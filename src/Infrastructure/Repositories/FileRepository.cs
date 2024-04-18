@@ -1,24 +1,22 @@
-using Domain;
-using Domain.Abstractions;
+using Domain.Exceptions;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using Minio;
 using Minio.DataModel.Args;
-using OneOf;
 using File = Domain.Models.File;
 
 namespace Infrastructure.Repositories;
 
 public class FileRepository(IMinioClient client)
 {
-    public async Task<OneOf<Ok, Error>> PutFileAsync(IFormFile formFile, File file, string bucketName,
+    public async Task PutFileAsync(IFormFile formFile, File file, string bucketName,
         CancellationToken cancellationToken)
     {
         var bucketExistsArgs = new BucketExistsArgs().WithBucket(bucketName);
         var isBucketExists = await client.BucketExistsAsync(bucketExistsArgs, cancellationToken);
         if (!isBucketExists)
         {
-            return Error.NotFound("bucket", bucketName);
+            throw new NotFoundException("bucket", bucketName);
         }
         
         await using var stream = new MemoryStream();
@@ -31,28 +29,27 @@ public class FileRepository(IMinioClient client)
             .WithStreamData(stream)
             .WithContentType(formFile.ContentType);
         await client.PutObjectAsync(putObject, cancellationToken);
-
-        return new Ok();
     }
 
-    public async Task<OneOf<MemoryStream, Error>> GetFileAsync(File file,
+    public async Task<MemoryStream> GetFileAsync(File file,
         CancellationToken cancellationToken)
     {
-        var args = new ObjectExistsArgs(file.Bucket, "test");
-        var result = await client.ObjectAndBucketExistsAsync(args, cancellationToken);
-        return await result.Match<Task<OneOf<MemoryStream, Error>>>(
-            async _ =>
-            {
-                var memoryStream = new MemoryStream();
+        var objectExistsArgs = new ObjectExistsArgs(file.Bucket, file.Filename);
+        var objectExists = await client.ObjectExistsAsync(objectExistsArgs, cancellationToken);
+        if(!objectExists) throw new NotFoundException(nameof(File), file.Filename);
+        
+        var bucketExistsArgs = new BucketExistsArgs().WithBucket(file.Bucket);
+        var bucketExists = await client.BucketExistsAsync(bucketExistsArgs, cancellationToken);
+        if(!bucketExists) throw new NotFoundException("bucket", file.Bucket);
+        
+        var memoryStream = new MemoryStream();
 
-                var objectArgs = new GetObjectArgs()
-                    .WithBucket(file.Bucket)
-                    .WithObject(file.Filename)
-                    .WithCallbackStream(stream => stream.CopyTo(memoryStream));
+        var objectArgs = new GetObjectArgs()
+            .WithBucket(file.Bucket)
+            .WithObject(file.Filename)
+            .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
-                await client.GetObjectAsync(objectArgs, cancellationToken);
-                return memoryStream;
-            }, error => Task.FromResult<OneOf<MemoryStream, Error>>(error)
-        );
+        await client.GetObjectAsync(objectArgs, cancellationToken);
+        return memoryStream;
     }
 }

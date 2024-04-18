@@ -63,21 +63,13 @@ public class UsersController(
 
         var avatar = await GetOrCreateAvatarAsync(user.Id, request.File.FileName, cancellationToken);
         
-        var putFileResult = await fileRepository
+        await fileRepository
             .PutFileAsync(request.File, avatar, BucketConstants.Avatar, cancellationToken);
         
-        return await putFileResult.Match<Task<IActionResult>>(
-            async _ =>
-            {
-                request.Adapt(user);
-                user.Avatar = avatar;
-                await context.SaveChangesAsync(cancellationToken);
-                return NoContent();
-            }, error => Task.FromResult<IActionResult>(error switch
-            {
-                NotFoundError err => NotFound(err.Message),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
-            }));
+        request.Adapt(user);
+        user.Avatar = avatar;
+        await context.SaveChangesAsync(cancellationToken);
+        return NoContent();
     }
 
     private async Task<File> GetOrCreateAvatarAsync(Guid userId, string filename, CancellationToken cancellationToken)

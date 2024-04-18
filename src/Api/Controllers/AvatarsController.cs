@@ -22,17 +22,9 @@ public class AvatarsController(FileRepository files, AppDbContext context) : Con
 
         if (file is null) return NotFound(Messages.NotFound(nameof(File), filename));
         
-        var getFileResult = await files.GetFileAsync(file, cancellationToken);
-        return getFileResult.Match<IActionResult>(
-            stream =>
-            {
-                var contentType = GetContentType(file.Filename);
-                return File(stream, contentType);
-            }, error => error switch
-            {
-                NotFoundError err => NotFound(err.Message),
-                _ => StatusCode(StatusCodes.Status500InternalServerError, "Not Handled Error")
-            });
+        var memoryStream = await files.GetFileAsync(file, cancellationToken);
+        var contentType = GetContentType(file.Filename);
+        return File(memoryStream, contentType);
     }
 
     private static string GetContentType(string source)
