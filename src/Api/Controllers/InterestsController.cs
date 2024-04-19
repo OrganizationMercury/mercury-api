@@ -17,7 +17,7 @@ public class InterestsController(InterestRepository interestsGraph) : Controller
     [HttpPost]
     public async Task<IActionResult> CreateIfNotExists([FromBody] string name)
     {
-        await interestsGraph.CreateIfNotExistsAsync(name);
+        await interestsGraph.EnsureCreatedAsync(name);
         return NoContent();
     }
 }
