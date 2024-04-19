@@ -3,7 +3,7 @@ using System.Text.Json;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace Api.Middlewares;
+namespace Api.Services;
 
 public class ExceptionHandler : IExceptionHandler
 {

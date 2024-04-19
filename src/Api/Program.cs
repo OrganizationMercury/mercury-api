@@ -1,4 +1,4 @@
-using Api.Middlewares;
+using Api.Services;
 using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
