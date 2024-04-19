@@ -33,6 +33,7 @@ public class UsersController(
         CancellationToken cancellationToken)
     {
         var user = await context.Users
+            .Include(user => user.Avatar)
             .AsNoTracking()
             .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
         
