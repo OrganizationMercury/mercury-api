@@ -59,15 +59,17 @@ public class UsersController(
     {
         var user = await context.Users
             .FirstOrDefaultAsync(user => user.Id == request.Id, cancellationToken);
-        if (user is null) return NotFound(Messages.NotFound<User>(request.Id));
-
-        var avatar = await GetOrCreateAvatarAsync(user.Id, request.File.FileName, cancellationToken);
+        if(user is null) return NotFound(Messages.NotFound<User>(request.Id));
         
-        await fileRepository
-            .PutFileAsync(request.File, avatar, BucketConstants.Avatar, cancellationToken);
+        if (request.File is not null)
+        {
+            var avatar = await GetOrCreateAvatarAsync(user.Id, request.File.FileName, cancellationToken);
+            await fileRepository
+                .PutFileAsync(request.File, avatar, BucketConstants.Avatar, cancellationToken);
+            user.Avatar = avatar;
+        }
         
         request.Adapt(user);
-        user.Avatar = avatar;
         await context.SaveChangesAsync(cancellationToken);
         return NoContent();
     }
