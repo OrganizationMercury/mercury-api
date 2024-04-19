@@ -4,6 +4,7 @@ using Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options => options
@@ -16,7 +17,7 @@ builder.Services.AddCors(options => options
 builder.Services.AddPersistenceServices(builder.Configuration);
 var app = builder.Build();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler("/Error");
 app.UseSwagger();
 app.UseSwaggerUI();
 
