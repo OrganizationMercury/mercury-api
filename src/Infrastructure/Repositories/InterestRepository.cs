@@ -21,7 +21,7 @@ public class InterestRepository(IDriver driver)
         });
     }
 
-    public async Task CreateIfNotExistsAsync(string name)
+    public async Task EnsureCreatedAsync(string name)
     {
         await using var session = driver.AsyncSession();
         await session.ExecuteWriteAsync(async runner =>
@@ -33,6 +33,5 @@ public class InterestRepository(IDriver driver)
                 """, new { Name = name });
             return data.ConsumeAsync();
         });
-
     }
 }

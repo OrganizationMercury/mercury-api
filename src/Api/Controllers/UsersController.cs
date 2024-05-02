@@ -37,7 +37,7 @@ public class UsersController(
             .AsNoTracking()
             .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
         
-        if (user is null) throw new Exception(id + " user was not found!");
+        if (user is null) return NotFound(Messages.NotFound(nameof(user), id));
         return Ok(user);
     }
 
