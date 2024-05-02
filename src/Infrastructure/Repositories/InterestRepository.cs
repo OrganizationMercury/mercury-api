@@ -33,6 +33,5 @@ public class InterestRepository(IDriver driver)
                 """, new { Name = name });
             return data.ConsumeAsync();
         });
-
     }
 }
