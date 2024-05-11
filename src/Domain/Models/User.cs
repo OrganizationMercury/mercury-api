@@ -1,12 +1,18 @@
-﻿namespace Domain.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
-public class User
+namespace Domain.Models;
+
+public class User : IdentityUser<Guid>
 {
-    public Guid Id { get; set; }
+    [MaxLength(40)]
     public string? AvatarFilename { get; set; }
     public File? Avatar { get; set; } 
-    public string Firstname { get; set; } = null!;
-    public string Lastname { get; set; } = null!;
-    public string Username { get; set; } = null!;
+    
+    [MaxLength(40)]
+    public string FirstName { get; set; } = null!;
+    [MaxLength(40)]
+    public string LastName { get; set; } = null!;
+    [MaxLength(128)]
     public string? Bio { get; set; }
 }
