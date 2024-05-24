@@ -1,5 +1,5 @@
 using Api.Services;
-using Infrastructure.Extensions;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +15,9 @@ builder.Services.AddCors(options => options
         ));
 
 builder.Services.AddPersistenceServices(builder.Configuration);
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TokenService>();
+
 var app = builder.Build();
 
 app.UseExceptionHandler("/Error");
