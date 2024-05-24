@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Minio;
 using Neo4j.Driver;
 
-namespace Infrastructure.Extensions;
+namespace Infrastructure;
 
 public static class ConfigureServices
 {
