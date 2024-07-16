@@ -46,7 +46,7 @@ public class AccountController(
         if (!isPassCorrect)
             return Unauthorized(Messages.IncorrectPassword);
 
-        var token = tokenService.GenerateJwtToken(user.Id);
+        var token = tokenService.GenerateJwtToken(user.Id, user.UserName);
         return Ok(token);
     }
 }

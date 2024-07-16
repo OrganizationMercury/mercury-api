@@ -7,7 +7,7 @@ namespace Api.Services;
 
 public class TokenService(IConfiguration configuration)
 {
-    public string GenerateJwtToken(Guid userId)
+    public string GenerateJwtToken(Guid userId, string userName)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var stringKey = configuration["JWT_KEY"] 
@@ -16,7 +16,10 @@ public class TokenService(IConfiguration configuration)
         
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim("id", userId.ToString()) }),
+            Subject = new ClaimsIdentity(new[] {
+                new Claim(JwtRegisteredClaimNames.Sub, userName),
+                new Claim(JwtRegisteredClaimNames.Jti, userId.ToString()) 
+            }),
             Expires = DateTime.UtcNow.AddMinutes(30),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
