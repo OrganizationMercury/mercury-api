@@ -17,11 +17,21 @@ public class UsersController(UserService users) : ControllerBase
     }
     
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync(Guid id, 
+    public async Task<IActionResult> GetByIdAsync([FromRoute]Guid id, 
         CancellationToken cancellationToken)
     {
         var user = await users.GetByIdAsync(id, cancellationToken);
         if (user is null) return NotFound(Messages.NotFound(nameof(user), id));
+        
+        return Ok(user);
+    }
+    
+    [HttpGet("{username:alpha}")]
+    public async Task<IActionResult> GetByUsernameAsync([FromRoute] string username, 
+        CancellationToken cancellationToken)
+    {
+        var user = await users.GetByUsernameAsync(username, cancellationToken);
+        if (user is null) return NotFound(Messages.NotFound(nameof(user), username));
         
         return Ok(user);
     }
