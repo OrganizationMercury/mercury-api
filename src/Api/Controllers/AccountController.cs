@@ -32,7 +32,7 @@ public class AccountController(
         if (!result.Succeeded) throw new Exception("User creation failed!");
         
         await userGraph.CreateAsync(user.Id);
-        return Ok(Messages.UserCreated);
+        return Ok();
     }
 
     [HttpPost("Login")]

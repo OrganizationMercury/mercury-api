@@ -5,13 +5,17 @@ using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using File = Domain.Models.File;
 
 namespace Api.Services;
 
-public class UserService(AppDbContext context, FileRepository files)
+public class UserService(
+    AppDbContext context,
+    FileRepository files,
+    UserManager<User> userManager)
 {
     public async Task<List<User>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -31,13 +35,22 @@ public class UserService(AppDbContext context, FileRepository files)
         
         return user;
     }
+    
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellationToken)
+    {
+        var user = await context.Users
+            .Include(user => user.Avatar)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(user => user.UserName == username, cancellationToken);
+        
+        return user;
+    }
 
     [HttpPut]
     public async Task UpdateAsync([FromForm] UpdateUserDto dto,
         CancellationToken cancellationToken)
     {
-        var user = await context.Users
-            .FirstOrDefaultAsync(user => user.Id == dto.Id, cancellationToken);
+        var user = await userManager.FindByIdAsync(dto.Id.ToString());
         if(user is null) throw new NotFoundException(nameof(User), dto.Id);
         
         if (dto.File is not null)
