@@ -29,6 +29,7 @@ public class ExceptionHandler : IExceptionHandler
     {
         ArgumentException => StatusCodes.Status400BadRequest,
         NotFoundException => StatusCodes.Status404NotFound,
+        AlreadyExistsException => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status500InternalServerError
     };
 }
