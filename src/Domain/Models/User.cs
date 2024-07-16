@@ -7,8 +7,9 @@ public class User : IdentityUser<Guid>
 {
     [MaxLength(40)]
     public string? AvatarFilename { get; set; }
-    public File? Avatar { get; set; } 
-    
+    public File? Avatar { get; set; }
+    public override string UserName { get; set; } = null!;
+
     [MaxLength(40)]
     public string FirstName { get; set; } = null!;
     [MaxLength(40)]
