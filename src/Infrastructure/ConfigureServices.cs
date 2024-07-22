@@ -30,6 +30,7 @@ public static class ConfigureServices
             .AddHostedService<PostgresInitializer>()
             .AddScoped<UserRepository>()
             .AddScoped<InterestRepository>()
+            .AddScoped<RecommendationRepository>()
             .AddScoped<FileRepository>();
     }
 
