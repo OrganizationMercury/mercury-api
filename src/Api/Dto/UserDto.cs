@@ -7,3 +7,9 @@ public record UpdateUserDto(
     string Username,
     string? Bio,
     IFormFile? File);
+
+public record ChatUserDto(
+    Guid Id,
+    string UserName,
+    string FirstName,
+    string LastName);

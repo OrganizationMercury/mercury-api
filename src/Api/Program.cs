@@ -1,3 +1,4 @@
+using Api.Hubs;
 using Api.Services;
 using Infrastructure;
 
@@ -12,8 +13,9 @@ builder.Services.AddCors(options => options
                 .WithOrigins("http://localhost:4200")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
+                .AllowCredentials()
         ));
-
+builder.Services.AddSignalR().AddMessagePackProtocol();
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
@@ -32,5 +34,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/signalr");
 
 app.Run();

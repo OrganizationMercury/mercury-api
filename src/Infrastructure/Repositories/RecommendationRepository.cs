@@ -16,7 +16,7 @@ public class RecommendationRepository(IDriver driver)
                 MATCH (otherUsers:User)-[:LIKES]->(interests)
                 WHERE otherUsers <> currentUser
                 WITH otherUsers, COUNT(interests) AS commonInterests
-                ORDER BY commonInterests DESC
+                ORDER BY commonInterests DESC, otherUsers.Id
                 RETURN otherUsers.Id AS userId
                 SKIP $index
                 LIMIT 1
@@ -25,8 +25,8 @@ public class RecommendationRepository(IDriver driver)
                     userId = userId.ToString(),
                     index
                 });
+            if (!data.IsOpen) throw new ArgumentException("Index out of range for available recommendations.");
             return await data.SingleAsync(record => Guid.Parse(record["userId"].As<string>()));
-
         });
     }
 }

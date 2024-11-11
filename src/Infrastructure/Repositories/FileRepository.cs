@@ -50,6 +50,7 @@ public class FileRepository(IMinioClient client)
             .WithCallbackStream(stream => stream.CopyTo(memoryStream));
 
         await client.GetObjectAsync(objectArgs, cancellationToken);
+        memoryStream.Seek(0, SeekOrigin.Begin);
         return memoryStream;
     }
 }

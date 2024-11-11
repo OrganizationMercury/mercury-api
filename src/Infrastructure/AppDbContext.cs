@@ -10,6 +10,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
 {
     public required DbSet<File> Files { get; set; }
+    public DbSet<UserAvatar> UserAvatars { get; set; }
+    public DbSet<GroupAvatar> GroupAvatars { get; set; }
+    public required DbSet<Message> Messages { get; set; }
+    public required DbSet<Chat> Chats { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -20,13 +24,23 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .IsUnique();
 
         builder.Entity<User>()
-            .HasOne<File>(user => user.Avatar)
+            .HasOne<UserAvatar>(user => user.Avatar)
             .WithOne()
-            .HasForeignKey<User>(user => user.AvatarFilename);
+            .HasForeignKey<User>(user => user.AvatarId);
         
         builder.Entity<File>()
+            .HasDiscriminator<string>("FileType")
+            .HasValue<UserAvatar>("UserAvatar")
+            .HasValue<GroupAvatar>("GroupAvatar");
+        
+        builder.Entity<UserAvatar>()
             .HasOne<User>()
             .WithOne()
-            .HasForeignKey<File>(i => i.UserId);
+            .HasForeignKey<UserAvatar>(avatar => avatar.UserId);
+        
+        builder.Entity<GroupAvatar>()
+            .HasOne<Chat>()
+            .WithOne()
+            .HasForeignKey<GroupAvatar>(avatar => avatar.ChatId);
     }
 }

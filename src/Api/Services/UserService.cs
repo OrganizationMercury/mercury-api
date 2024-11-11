@@ -8,7 +8,6 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using File = Domain.Models.File;
 
 namespace Api.Services;
 
@@ -55,7 +54,7 @@ public class UserService(
         
         if (dto.File is not null)
         {
-            var avatar = await GetOrCreateAvatarAsync(user.Id, dto.File.FileName, cancellationToken);
+            var avatar = await EnsureCreatedUserAvatarAsync(user.Id, dto.File.FileName, cancellationToken);
             await files
                 .PutFileAsync(dto.File, avatar, BucketConstants.Avatar, cancellationToken);
             user.Avatar = avatar;
@@ -65,14 +64,14 @@ public class UserService(
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<File> GetOrCreateAvatarAsync(Guid userId, string filename, CancellationToken cancellationToken)
+    private async Task<UserAvatar> EnsureCreatedUserAvatarAsync(Guid userId, string filename, CancellationToken cancellationToken)
     {
-        var avatar = await context.Files.FirstOrDefaultAsync(file => file.UserId == userId, cancellationToken);
+        var avatar = await context.UserAvatars.FirstOrDefaultAsync(avatar => avatar.UserId == userId, cancellationToken);
         if (avatar is not null) return avatar;
         
         var fileId = Guid.NewGuid();
         var fileExtension = Path.GetExtension(filename);
-        avatar = new File
+        avatar = new UserAvatar
         {
             Filename = $"{fileId}{fileExtension}",
             UserId = userId,

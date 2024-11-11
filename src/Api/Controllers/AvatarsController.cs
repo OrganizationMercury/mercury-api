@@ -9,11 +9,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 public class AvatarsController(FileRepository files, AppDbContext context) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> Get(string filename, 
+    [HttpGet("Avatars/{filename}")]
+    public async Task<IActionResult> Get([FromRoute] string filename, 
         CancellationToken cancellationToken)
     {
         var file = await context.Files
@@ -27,18 +26,17 @@ public class AvatarsController(FileRepository files, AppDbContext context) : Con
         return File(memoryStream, contentType);
     }
     
-    [HttpGet("[action]")]
-    public async Task<IActionResult> GetByUserId(Guid userId, 
+    [HttpGet("Users/{userId:guid}/Avatar")]
+    public async Task<IActionResult> GetByUserId([FromRoute] Guid userId, 
         CancellationToken cancellationToken)
     {
-        var file = await context.Files
+        var file = await context.UserAvatars
             .Where(file => file.UserId == userId && file.Bucket == BucketConstants.Avatar) 
             .FirstOrDefaultAsync(cancellationToken);
 
         if (file is null) return NotFound(Messages.NotFound(nameof(File), userId));
         
         var memoryStream = await files.GetFileAsync(file, cancellationToken);
-        memoryStream.Seek(0, SeekOrigin.Begin);
         var contentType = GetContentType(file.Filename);
         return File(memoryStream, contentType);
     }
