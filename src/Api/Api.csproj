@@ -11,6 +11,7 @@
     <ItemGroup>
         <PackageReference Include="Mapster" Version="7.4.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.7" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.5">
           <PrivateAssets>all</PrivateAssets>

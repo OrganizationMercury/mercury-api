@@ -2,10 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models;
 
-public class File
+public abstract class File
 {
     [Key]
+    public Guid Id { get; set; } 
+    
+    [Required]
     public string Filename { get; set; } = null!;
-    public Guid UserId { get; set; }
+    
+    [Required]
     public string Bucket { get; set; } = null!;
+    
+    [Required]
+    public DateTime CreatedAt { get; set; } 
 }

@@ -13,14 +13,19 @@ public class TokenService(IConfiguration configuration)
         var stringKey = configuration["JWT_KEY"] 
             ?? throw new InvalidOperationException("JWT_KEY does not exist");
         var key = Encoding.ASCII.GetBytes(stringKey);
+        var issuer = configuration["JWT_ISSUER"]
+                     ?? throw new InvalidOperationException("JWT_ISSUER does not exist");
         
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] {
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
-                new Claim(JwtRegisteredClaimNames.Jti, userId.ToString()) 
+                new Claim(JwtRegisteredClaimNames.Name, userName),
+                new Claim(JwtRegisteredClaimNames.Jti, userId.ToString())
             }),
             Expires = DateTime.UtcNow.AddMinutes(30),
+            Issuer = issuer,
+            Audience = issuer,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);

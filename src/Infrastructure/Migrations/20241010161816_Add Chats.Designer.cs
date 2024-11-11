@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241010161816_Add Chats")]
+    partial class AddChats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,8 +46,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AvatarId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("AvatarFilename")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(40)
@@ -55,40 +58,29 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AvatarId");
+                    b.HasIndex("AvatarFilename");
 
                     b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("Domain.Models.File", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.Property<string>("Filename")
+                        .HasColumnType("text");
 
                     b.Property<string>("Bucket")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("character varying(13)");
+                    b.HasKey("Filename");
 
-                    b.Property<string>("Filename")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Files");
-
-                    b.HasDiscriminator<string>("FileType").HasValue("File");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Domain.Models.Message", b =>
@@ -127,8 +119,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("AvatarId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("AvatarFilename")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Bio")
                         .HasMaxLength(128)
@@ -191,7 +184,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AvatarId")
+                    b.HasIndex("AvatarFilename")
                         .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
@@ -337,32 +330,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Models.GroupAvatar", b =>
-                {
-                    b.HasBaseType("Domain.Models.File");
-
-                    b.Property<Guid>("ChatId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("ChatId")
-                        .IsUnique();
-
-                    b.HasDiscriminator().HasValue("GroupAvatar");
-                });
-
-            modelBuilder.Entity("Domain.Models.UserAvatar", b =>
-                {
-                    b.HasBaseType("Domain.Models.File");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.HasDiscriminator().HasValue("UserAvatar");
-                });
-
             modelBuilder.Entity("ChatUser", b =>
                 {
                     b.HasOne("Domain.Models.Chat", null)
@@ -382,16 +349,25 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Models.File", "Avatar")
                         .WithMany()
-                        .HasForeignKey("AvatarId");
+                        .HasForeignKey("AvatarFilename");
 
                     b.Navigation("Avatar");
                 });
 
+            modelBuilder.Entity("Domain.Models.File", b =>
+                {
+                    b.HasOne("Domain.Models.User", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Models.File", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Models.User", b =>
                 {
-                    b.HasOne("Domain.Models.UserAvatar", "Avatar")
+                    b.HasOne("Domain.Models.File", "Avatar")
                         .WithOne()
-                        .HasForeignKey("Domain.Models.User", "AvatarId");
+                        .HasForeignKey("Domain.Models.User", "AvatarFilename");
 
                     b.Navigation("Avatar");
                 });
@@ -443,24 +419,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Models.GroupAvatar", b =>
-                {
-                    b.HasOne("Domain.Models.Chat", null)
-                        .WithOne()
-                        .HasForeignKey("Domain.Models.GroupAvatar", "ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Models.UserAvatar", b =>
-                {
-                    b.HasOne("Domain.Models.User", null)
-                        .WithOne()
-                        .HasForeignKey("Domain.Models.UserAvatar", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
