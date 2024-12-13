@@ -8,8 +8,19 @@ public record UpdateUserDto(
     string? Bio,
     IFormFile? File);
 
-public record ChatUserDto(
-    Guid Id,
-    string UserName,
-    string FirstName,
-    string LastName);
+public class ChatUserDto
+{
+    public Guid Id { get; set; }
+    public string UserName { get; set; } 
+    public string FirstName { get; set; } 
+    public string LastName { get; set; } 
+    public string? Bio { get; set; }
+    public string? FileName { get; set; } 
+}
+    
+public class UserWithAvatarDto
+{
+    public Guid Id { get; set; }
+    public string FullName { get; set; }
+    public string? FileName { get; set; }
+}
