@@ -5,9 +5,7 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure;
-using Infrastructure.Repositories;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +13,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UsersController(UserService users, AppDbContext context, FileRepository files) : ControllerBase
+public class UsersController(UserService users, AppDbContext context) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
@@ -93,5 +91,77 @@ public class UsersController(UserService users, AppDbContext context, FileReposi
         }).ToList();
         
         return Ok(chats);
+    }
+    
+    [HttpGet("{userId:guid}/Chats/Private")]
+    public async Task<IActionResult> GetUserPrivateChats([FromRoute] Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var user = await context.Users
+            .Include(user => user.Chats)
+            .ThenInclude(chat => chat.Users)
+            .ThenInclude(user => user.Avatar)
+            .Include(user => user.Chats)
+            .ThenInclude(chat => chat.Avatar)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        
+        if(user is null) return NotFound(Messages.NotFound<User>(userId));
+        var privateChats = user.Chats.Where(chat => chat.Type is ChatType.Private);
+        
+        var chats = privateChats.Select(chat =>
+        {
+            var chatDto = chat.Adapt<ChatWithAvatarDto>();
+            
+            var otherUser = chat.Users.FirstOrDefault(u => u.Id != userId);
+            if (otherUser is null) throw new NotFoundException(nameof(User), userId);
+                
+            chatDto.Name = $"{otherUser.FirstName} {otherUser.LastName}";
+
+            if (otherUser.Avatar is not null)
+            {
+                chatDto.Avatar = otherUser.Avatar.Filename;
+            }
+            
+            return chatDto;
+        }).ToList();
+        
+        return Ok(chats);
+    }
+
+    [HttpGet("{userId:guid}/Interlocutors")]
+    public async Task<IActionResult> GetUserInterlocutors([FromRoute] Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var user = await context.Users
+            .Include(user => user.Chats)
+            .ThenInclude(chat => chat.Users)
+            .ThenInclude(user => user.Avatar)
+            .Include(user => user.Chats)
+            .ThenInclude(chat => chat.Avatar)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        
+        if(user is null) return NotFound(Messages.NotFound<User>(userId));
+        var privateChats = user.Chats.Where(chat => chat.Type is ChatType.Private);
+        
+        var userDtos = privateChats.Select(chat =>
+        {
+            var otherUser = chat.Users.FirstOrDefault(u => u.Id != userId);
+            if (otherUser is null) throw new NotFoundException(nameof(User), userId);
+
+            var userDto = new UserWithAvatarDto
+            {
+                Id = otherUser.Id,
+                FullName = $"{otherUser.FirstName} {otherUser.LastName}"
+            };
+
+            if (otherUser.Avatar is not null)
+            {
+                userDto.FileName = otherUser.Avatar.Filename;
+            }
+            
+            return userDto;
+        }).ToList();
+        
+        return Ok(userDtos);
     }
 }
