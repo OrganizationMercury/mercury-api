@@ -16,3 +16,8 @@ public class ChatWithAvatarDto
     [MaxLength(40)] public string? Name { get; set; }
     public string? Avatar { get; set; }
 }
+
+public record AddChatDto(
+    List<Guid> UserIds,
+    string Name,
+    IFormFile? Avatar);
