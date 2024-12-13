@@ -27,6 +27,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             .HasOne<UserAvatar>(user => user.Avatar)
             .WithOne()
             .HasForeignKey<User>(user => user.AvatarId);
+
+        builder.Entity<Chat>()
+            .HasMany(c => c.Users)
+            .WithMany(u => u.Chats);
         
         builder.Entity<File>()
             .HasDiscriminator<string>("FileType")
