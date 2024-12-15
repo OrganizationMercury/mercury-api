@@ -1,5 +1,6 @@
 using Api.Dto;
-using Domain.Enums;
+using Api.Services;
+using Domain.Exceptions;
 using Domain.Models;
 using Infrastructure;
 using Mapster;
@@ -8,62 +9,46 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Hubs;
 
-public class ChatHub(AppDbContext context) : Hub
+public class ChatHub(AppDbContext context, ChatService chats) : Hub
 {
     public static readonly List<ChatUserDto> Connections = [];
     private static readonly Dictionary<string, string> ConnectionsMap = [];
    
     public async Task SendPrivate(Guid? chatId, Guid interlocutorId, string message)
     {
+        if (string.IsNullOrEmpty(message.Trim())) return;
+        
         if (chatId is null)
         {
             var sender = await context.Users.FirstOrDefaultAsync(u => u.UserName == IdentityName);
-            if (sender is null) throw new NotImplementedException("sender was not found");
+            if (sender is null) throw new NotFoundException(nameof(User), "sender was not found");
             
-            var interlocutor = await context.Users.FirstOrDefaultAsync(u => u.Id == interlocutorId);
-            if (interlocutor is null) throw new NotImplementedException("sender was not found");
-
-            var newChat = new Chat
-            {
-                Id = Guid.NewGuid(),
-                Type = ChatType.Private,
-                Users = [sender, interlocutor]
-            };
-
-            await context.Chats.AddAsync(newChat);
-            await context.SaveChangesAsync();
+            var newChatId = await chats.AddPrivateChatAsync(sender.Id, interlocutorId);
             
-            chatId = newChat.Id;
+            chatId = newChatId;
             await Clients.Caller.SendAsync("chatCreated", chatId);
         }
-        
-        var chat = await context.Chats
-            .Include(chat => chat.Users)
-            .FirstOrDefaultAsync(c => c.Id == chatId);
 
-        if (chat is null) throw new NotImplementedException("chat was not found");
+        await SendMessage(chatId.Value, message);
+    }
+    
+    public async Task SendGroup(Guid chatId, string message)
+    {
         if (string.IsNullOrEmpty(message.Trim())) return;
 
-        var senderDto = Connections.First(u => u.UserName == IdentityName);
-        var dbMessage = new Message
-        {
-            Id = Guid.NewGuid(),
-            Content = message.Replace("<", "&lt;").Replace(">", "&gt;"),
-            ChatId = chatId.Value,
-            SenderUserName = senderDto.UserName,
-            Timestamp = DateTime.UtcNow
-        };
-        
-        await context.Messages.AddAsync(dbMessage);
-        await context.SaveChangesAsync();
+        await SendMessage(chatId, message);
+    }
 
-        var messageViewModel = dbMessage.Adapt<MessageDto>();
+    public async Task GroupChatCreated(ChatWithAvatarDto chat)
+    {
+        var realChat = context.Chats.Include(c => c.Users).FirstOrDefault(c => c.Id == chat.Id);
+        if (realChat is null) throw new NotFoundException(nameof(Chat), chat.Id);
         
-        foreach (var user in chat.Users)
+        foreach (var user in realChat.Users)
         {
             if (ConnectionsMap.TryGetValue(user.UserName, out var userId))
             {
-                await Clients.Client(userId).SendAsync("newMessage", messageViewModel);
+                await Clients.Client(userId).SendAsync("chatCreated", chat.Id);
             }
         }
     }
@@ -116,6 +101,42 @@ public class ChatHub(AppDbContext context) : Hub
             var claim = Context.User!.Claims.FirstOrDefault(c => c.Type == type)?.Value;
             if (claim is not null) return claim;
             throw new ArgumentNullException($"Claim with type: {type} does not exists");
+        }
+    }
+    
+    private async Task SendMessage(Guid chatId, string message)
+    {
+        var chat = await context.Chats
+            .Include(chat => chat.Users)
+            .FirstOrDefaultAsync(c => c.Id == chatId);
+
+        if (chat is null) throw new NotFoundException(nameof(chat), chatId);
+
+        var senderDto = Connections.First(u => u.UserName == IdentityName);
+        var dbMessage = new Message
+        {
+            Id = Guid.NewGuid(),
+            Content = message.Replace("<", "&lt;").Replace(">", "&gt;"),
+            ChatId = chatId,
+            SenderUserName = senderDto.UserName,
+            Timestamp = DateTime.UtcNow
+        };
+        
+        await context.Messages.AddAsync(dbMessage);
+        await context.SaveChangesAsync();
+
+        var messageViewModel = dbMessage.Adapt<MessageDto>();
+        
+        foreach (var user in chat.Users)
+        {
+            if (ConnectionsMap.TryGetValue(user.UserName, out var userId))
+            {
+                await Clients.Client(userId).SendAsync("newMessage", new 
+                {
+                    message = messageViewModel,
+                    receiver = user.UserName 
+                });
+            }
         }
     }
 }

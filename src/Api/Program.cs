@@ -18,6 +18,7 @@ builder.Services.AddCors(options => options
 builder.Services.AddSignalR().AddMessagePackProtocol();
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<TokenService>();
 
 var app = builder.Build();
