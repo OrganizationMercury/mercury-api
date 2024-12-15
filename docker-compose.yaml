@@ -77,7 +77,6 @@ services:
   
   client:
     container_name: client
-    build: ../mercury-client
     image: ghcr.io/organizationmercury/mercury-client:develop
     restart: on-failure
     ports:
