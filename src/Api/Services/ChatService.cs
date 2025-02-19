@@ -42,6 +42,27 @@ public class ChatService(AppDbContext context, FileRepository files)
         return chat;
     }
     
+    public async Task<Chat> AddCommentsChatAsync(Guid userId, Guid postId, CancellationToken cancellationToken)
+    {
+        var user = await context.Users
+            .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+        if (user is null) throw new NotFoundException(nameof(User), userId);
+        
+        var chat = new Chat
+        {
+            Id = Guid.NewGuid(),
+            PostId = postId,
+            Type = ChatType.Comments,
+            Users = [user],
+            Avatar = null,
+            Name = null
+        };
+        
+        await context.Chats.AddAsync(chat, cancellationToken);
+
+        return chat;
+    }
+    
     public async Task<Guid> AddPrivateChatAsync(Guid userId, Guid interlocutorId)
     {
         var currentUser = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -75,6 +96,7 @@ public class ChatService(AppDbContext context, FileRepository files)
             Filename = $"{fileId}{fileExtension}",
             ChatId = chatId,
             Bucket = BucketConstants.Avatar,
+            CreatedAt = DateTime.UtcNow
         };
         await context.GroupAvatars.AddAsync(avatar, cancellationToken);
         

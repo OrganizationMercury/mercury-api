@@ -26,6 +26,23 @@ public class AvatarsController(FileRepository files, AppDbContext context) : Con
         return File(memoryStream, contentType);
     }
     
+    [HttpGet("Files/{fileId:guid}")]
+    public async Task<IActionResult> GetByFileId([FromRoute] Guid fileId, 
+        CancellationToken cancellationToken)
+    {
+        Console.WriteLine($"FILEID: {fileId}");
+        var file = await context.Files
+            .Where(file => file.Id == fileId) 
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if (file is null) return NotFound(Messages.NotFound(nameof(File), fileId));
+        Console.WriteLine($"FILE: {file.Filename}");
+        Console.WriteLine($" {file.Bucket}");
+        var memoryStream = await files.GetFileAsync(file, cancellationToken);
+        var contentType = GetContentType(file.Filename);
+        return File(memoryStream, contentType);
+    }
+    
     [HttpGet("Users/{userId:guid}/Avatar")]
     public async Task<IActionResult> GetByUserId([FromRoute] Guid userId, 
         CancellationToken cancellationToken)

@@ -53,4 +53,21 @@ public class FileRepository(IMinioClient client)
         memoryStream.Seek(0, SeekOrigin.Begin);
         return memoryStream;
     }
+
+    public async Task DeleteFile(File file, CancellationToken cancellationToken)
+    {
+        var bucketExistsArgs = new BucketExistsArgs().WithBucket(file.Bucket);
+        var bucketExists = await client.BucketExistsAsync(bucketExistsArgs, cancellationToken);
+        if (!bucketExists) throw new NotFoundException("bucket", file.Bucket);
+
+        var objectExistsArgs = new ObjectExistsArgs(file.Bucket, file.Filename);
+        var objectExists = await client.ObjectExistsAsync(objectExistsArgs, cancellationToken);
+        if (!objectExists) throw new NotFoundException(nameof(File), file.Filename);
+
+        var removeObjectArgs = new RemoveObjectArgs()
+            .WithBucket(file.Bucket)
+            .WithObject(file.Filename);
+
+        await client.RemoveObjectAsync(removeObjectArgs, cancellationToken);
+    }
 }

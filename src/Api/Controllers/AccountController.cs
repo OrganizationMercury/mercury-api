@@ -29,7 +29,8 @@ public class AccountController(
         user.SecurityStamp = Guid.NewGuid().ToString();
        
         var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded) throw new Exception("User creation failed!");
+        if (!result.Succeeded) 
+            return BadRequest("User creation failed!");
         
         await userGraph.CreateAsync(user.Id);
         return Ok();

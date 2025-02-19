@@ -73,11 +73,13 @@ public class UserService(
         var fileExtension = Path.GetExtension(filename);
         avatar = new UserAvatar
         {
+            Id = fileId,
             Filename = $"{fileId}{fileExtension}",
             UserId = userId,
             Bucket = BucketConstants.Avatar,
+            CreatedAt = DateTime.UtcNow
         };
-        await context.Files.AddAsync(avatar, cancellationToken);
+        await context.UserAvatars.AddAsync(avatar, cancellationToken);
 
         return avatar;
     }

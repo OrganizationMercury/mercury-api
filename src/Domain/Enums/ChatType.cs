@@ -3,5 +3,6 @@ namespace Domain.Enums;
 public enum ChatType
 {
     Private,
-    Group
+    Group,
+    Comments
 }
