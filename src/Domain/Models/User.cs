@@ -15,4 +15,5 @@ public class User : IdentityUser<Guid>
     public Guid? AvatarId { get; set; }
     public UserAvatar? Avatar { get; set; }
     public List<Chat> Chats { get; set; } = null!;
+    public List<Post> Posts { get; set; }
 }

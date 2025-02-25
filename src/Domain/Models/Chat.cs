@@ -6,6 +6,7 @@ namespace Domain.Models;
 public class Chat
 {
     public Guid Id { get; set; }
+    public Guid PostId { get; set; }
     public List<User> Users { get; set; } = null!;
     public ChatType Type { get; set; }
     [MaxLength(40)]

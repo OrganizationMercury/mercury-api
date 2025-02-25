@@ -64,31 +64,33 @@ public class UsersController(UserService users, AppDbContext context) : Controll
         
         if(user is null) return NotFound(Messages.NotFound<User>(userId));
         
-        var chats = user.Chats.Select(chat =>
-        {
-            var chatDto = chat.Adapt<ChatWithAvatarDto>();
-
-            if (chatDto.Type is not ChatType.Private)
+        var chats = user.Chats
+            .Where(chat => chat.Type != ChatType.Comments)
+            .Select(chat => 
             {
-                if (chat.Avatar is not null)
+                var chatDto = chat.Adapt<ChatWithAvatarDto>();
+
+                if (chatDto.Type is not ChatType.Private)
                 {
-                    chatDto.Avatar = chat.Avatar.Filename;
+                    if (chat.Avatar is not null)
+                    {
+                        chatDto.Avatar = chat.Avatar.Filename;
+                    }
+                    return chatDto;
                 }
-                return chatDto;
-            }
-            
-            var otherUser = chat.Users.FirstOrDefault(u => u.Id != userId);
-            if (otherUser is null) throw new NotFoundException(nameof(User), userId);
                 
-            chatDto.Name = $"{otherUser.FirstName} {otherUser.LastName}";
-
-            if (otherUser.Avatar is not null)
-            {
-                chatDto.Avatar = otherUser.Avatar.Filename;
-            }
-            
-            return chatDto;
-        }).ToList();
+                var otherUser = chat.Users.FirstOrDefault(u => u.Id != userId);
+                if (otherUser is null) throw new NotFoundException(nameof(User), userId);
+                    
+                chatDto.Name = $"{otherUser.FirstName} {otherUser.LastName}";
+                
+                if (otherUser.Avatar is not null)
+                {
+                    chatDto.Avatar = otherUser.Avatar.Filename;
+                }
+                
+                return chatDto;
+            }).ToList();
         
         return Ok(chats);
     }

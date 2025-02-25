@@ -11,9 +11,28 @@ namespace Api.Controllers;
 public class MessagesController(AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<List<MessageDto>> GetMessages([FromQuery] Guid chatId) =>
-        await context.Messages
-            .Where(m => m.ChatId == chatId)
+    public async Task<IActionResult> GetMessages(
+        [FromQuery] Guid chatId,
+        [FromQuery] bool latest = false) 
+    {
+        if (latest)
+        {
+            var lastMessage = await context.Messages
+                .Where(message => message.ChatId == chatId)
+                .OrderByDescending(message => message.Timestamp)
+                .AsNoTracking()
+                .ProjectToType<MessageDto>()
+                .FirstOrDefaultAsync();
+
+            return Ok(lastMessage); 
+        }
+        
+        var messages = await context.Messages
+            .Where(message => message.ChatId == chatId)
+            .AsNoTracking()
             .ProjectToType<MessageDto>()
             .ToListAsync();
+
+        return Ok(messages);
+    }
 }

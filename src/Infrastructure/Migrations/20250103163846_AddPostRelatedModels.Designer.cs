@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250103163846_AddPostRelatedModels")]
+    partial class AddPostRelatedModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,9 +52,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Name")
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -112,7 +112,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Likes");
+                    b.ToTable("Like");
                 });
 
             modelBuilder.Entity("Domain.Models.Message", b =>
@@ -157,13 +157,21 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("UserId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
 
+                    b.HasIndex("ContentId")
+                        .IsUnique();
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts");
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>
@@ -405,9 +413,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("PostId")
                         .HasColumnType("uuid");
 
-                    b.HasIndex("PostId")
-                        .IsUnique();
-
                     b.HasDiscriminator().HasValue("PostContent");
                 });
 
@@ -475,13 +480,27 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Models.User", "User")
+                    b.HasOne("Domain.Models.PostContent", "Content")
+                        .WithOne()
+                        .HasForeignKey("Domain.Models.Post", "ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", null)
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Chat");
+
+                    b.Navigation("Content");
 
                     b.Navigation("User");
                 });
@@ -555,15 +574,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Models.PostContent", b =>
-                {
-                    b.HasOne("Domain.Models.Post", null)
-                        .WithOne("Content")
-                        .HasForeignKey("Domain.Models.PostContent", "PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Models.UserAvatar", b =>
                 {
                     b.HasOne("Domain.Models.User", null)
@@ -575,9 +585,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Post", b =>
                 {
-                    b.Navigation("Content")
-                        .IsRequired();
-
                     b.Navigation("Likes");
                 });
 
