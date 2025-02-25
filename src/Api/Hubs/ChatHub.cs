@@ -26,7 +26,7 @@ public class ChatHub(AppDbContext context, ChatService chats) : Hub
             var newChatId = await chats.AddPrivateChatAsync(sender.Id, interlocutorId);
             
             chatId = newChatId;
-            await Clients.Caller.SendAsync("chatCreated", chatId);
+            await Clients.Caller.SendAsync("chatCreated", new { chatId, sender.Id});
         }
 
         await SendMessage(chatId.Value, message);
