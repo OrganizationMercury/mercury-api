@@ -27,7 +27,7 @@ public class RecommendationRepository(IDriver driver)
                 });
             if (!await data.FetchAsync()) 
                 throw new ArgumentException("No recommendations found for the user or index out of range.");
-            return await data.SingleAsync(record => Guid.Parse(record["userId"].As<string>()));
+            return Guid.Parse(data.Current["userId"].As<string>());
         });
     }
 }
